@@ -163,10 +163,10 @@ void loop() {
   // 自動施錠機能
   if (!locked && millis() >= lockTimeout) {
     while(digitalRead(MONITOR) == LOW){
-      delay(5000);
       digitalWrite(RELAY, HIGH);  // 施錠
       delay(200);                // 1秒間制御信号を送る
       digitalWrite(RELAY, LOW);
+      delay(5000);
     }
 
     Serial.println("自動施錠を実行しました。");
