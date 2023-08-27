@@ -12,7 +12,7 @@
 
 // MAC、IP、ポートの宣言
 byte mac[] = { 0x48, 0xE9, 0xF1, 0x1D, 0xE6, 0x76 };
-byte ip[] = { 192, 168, 1, 77 };
+byte ip[] = { 192, 168, 1, 19};
 EthernetServer server(80);
 
 // 制御変数
@@ -163,7 +163,7 @@ void loop() {
   // 自動施錠機能
   if (!locked && millis() >= lockTimeout) {
     while(digitalRead(MONITOR) == LOW){
-      delay(1000);
+      delay(5000);
       digitalWrite(RELAY, HIGH);  // 施錠
       delay(200);                // 1秒間制御信号を送る
       digitalWrite(RELAY, LOW);
