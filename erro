@@ -1,0 +1,19 @@
+/Users/syun1/Documents/dev/Auto_key/Auto_key.ino: In function 'void resolveHomebridgeIP()':
+/Users/syun1/Documents/dev/Auto_key/Auto_key.ino:314:23: error: 'class EthernetBonjourClass' has no member named 'isResolving'; did you mean 'isResolvingName'?
+   if (EthernetBonjour.isResolving()) {
+                       ^~~~~~~~~~~
+                       isResolvingName
+/Users/syun1/Documents/dev/Auto_key/Auto_key.ino:316:30: error: 'class EthernetBonjourClass' has no member named 'hasResolvedName'; did you mean 'resolveName'?
+   } else if (EthernetBonjour.hasResolvedName()) {
+                              ^~~~~~~~~~~~~~~
+                              resolveName
+/Users/syun1/Documents/dev/Auto_key/Auto_key.ino:317:36: error: 'class EthernetBonjourClass' has no member named 'resolvedIP'; did you mean 'resolveName'?
+     homebridgeIP = EthernetBonjour.resolvedIP();
+                                    ^~~~~~~~~~
+                                    resolveName
+「Ethernet.h」に対して複数のライブラリが見つかりました
+  使用済：/Users/syun1/Documents/Arduino/libraries/Ethernet
+  未使用：/Users/syun1/Library/Arduino15/libraries/Ethernet
+exit status 1
+
+Compilation error: 'class EthernetBonjourClass' has no member named 'isResolving'; did you mean 'isResolvingName'?
