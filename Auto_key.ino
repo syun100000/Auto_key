@@ -50,15 +50,20 @@ void setup() {
   server.begin();
   // autoLockTimeに応じたLEDを点灯
   digitalWrite(ledPins[autoLockTime], HIGH);
+  // 起動準備のため5秒待つ
+  delay(5000);
 }
 
 #define DEBOUNCE_DELAY 10            // デバウンス時間をミリ秒で設定
 int lastButtonState = HIGH;          // 前回のボタンの状態
 int buttonState;                     // 現在のボタンの状態
 unsigned long lastDebounceTime = 0;  // ボタンの状態が最後に切り替わった時刻
-
+// boolean previousLockedState = true; // ロックの初期状態を設定
+// ロックの状態を保存する変数 （1 = 施錠、0 = 解錠）
+int previousLockedState = 0;
 void loop() {
   int currentMonitorState = digitalRead(MONITOR);
+  // boolean currentLockedState = (currentMonitorState == HIGH);
   if (currentMonitorState == 1){
     //モニターが施錠中判定
     locked = 1;
@@ -66,6 +71,31 @@ void loop() {
   else if(currentMonitorState == 0){
     locked = 0;
   }
+
+  if (previousLockedState != locked){
+    // sendLockStateToHomebridge(locked);
+    if (locked == 1){
+      //施錠中の処理
+      sendLockStateToHomebridge(true);
+    }
+    else if (locked == 0){
+      //解錠中の処理
+      sendLockStateToHomebridge(false);
+    }
+    // 状態を保存
+    previousLockedState = locked;
+  }
+  // // ロックの状態が変更されたかチェック
+  // if (currentLockedState != previousLockedState) {
+  //   // ロックの状態が変更された場合、Homebridgeに通知
+  //   sendLockStateToHomebridge(currentLockedState);
+
+  //   // 現在の状態を保存
+  //   previousLockedState = currentLockedState;
+  // }
+
+
+
 
   // ボタンの現在の状態を読み取る
   int reading = digitalRead(BUTTON);
@@ -213,3 +243,48 @@ void returnHTML(EthernetClient client, boolean locked) {
   client.println("</body>");
   client.println("</html>");
 }
+
+// ホームブリッジに状態を送信する関数
+
+// Homebridgeサーバーにロックの状態を送信する関数
+void sendLockStateToHomebridge(boolean locked) {
+  char server[] = "homebridge.local";  // Homebridgeサーバーのホスト名
+  int port = 51828;                    // Homebridgeサーバーのポート
+
+  EthernetClient client;
+  Serial.println("Homebridgeサーバーに接続しています...");
+
+  if (client.connect(server, port)) {
+    Serial.println("Homebridgeサーバーに接続しました。");
+
+    // HTTPリクエストを構築
+    String url = "/?accessoryId=entrance_lock_1&lockcurrentstate=";
+    url += locked ? "1" : "0";  // 施錠は1、解錠は0
+
+    // HTTP GETリクエストを送信
+    client.println("GET " + url + " HTTP/1.1");
+    client.println("Host: " + String(server));
+    client.println("Connection: close");
+    client.println();  // リクエストの終わりを示す空行
+
+    // 応答を待つ（オプション）
+    while (client.connected()) {
+      if (client.available()) {
+        char c = client.read();
+        Serial.write(c);
+      }
+    }
+
+    // 接続を閉じる
+    client.stop();
+    Serial.println("\n送信完了");
+  } else {
+    // 接続に失敗した場合
+    Serial.println("エラー: Homebridgeサーバーに接続できませんでした。");
+  }
+}
+
+
+// 例: ロック状態が変更された場合にこの関数を呼び出す
+// sendLockStateToHomebridge(true); // 施錠
+// sendLockStateToHomebridge(false); // 解錠
